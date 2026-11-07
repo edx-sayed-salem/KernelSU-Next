@@ -175,12 +175,18 @@ endif
 KSU_NEW_DCACHE_FLUSH := $(shell grep -q __flush_dcache_area $(srctree)/arch/arm64/include/asm/cacheflush.h ; echo $$?)
 $(info -- KernelSU-Next new DCACHE flush: $(KSU_NEW_DCACHE_FLUSH))
 
+# Fork: pin the manager certificate this kernel trusts. Upstream pins the
+# official KernelSU-Next manager cert (0x3e6 / 79e59011…) and its manager APKs
+# are 4 KB-aligned, so they cannot exec on 16 KB-page devices. Managers built
+# from this fork are 16 KB-aligned and signed with the project keystore, so the
+# kernel must pin that certificate or it will never crown the app.
+# Both values are the certificate DER length and SHA-256, not the APK.
 ifndef KSU_NEXT_MANAGER_SIZE
-KSU_NEXT_MANAGER_SIZE := 0x3e6
+KSU_NEXT_MANAGER_SIZE := 0x320
 endif
 
 ifndef KSU_NEXT_MANAGER_HASH
-KSU_NEXT_MANAGER_HASH := 79e590113c4c4c0c222978e413a5faa801666957b1212a328e46c00c69821bf7
+KSU_NEXT_MANAGER_HASH := bfdd092457348ee7cb7f6e228b8fe518e95d445b0736d796d578a5e3b478940d
 endif
 
 ifdef KSU_MANAGER_PACKAGE
